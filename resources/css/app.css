@@ -221,6 +221,12 @@ a {
 .badge-medium { background: #f5d98b; color: #6b4f00; }
 .badge-high { background: #e8a1b3; color: #7a2c3e; }
 
+.tag-chip-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+}
+
 .tag-chip {
     display: inline-block;
     padding: 2px 10px;

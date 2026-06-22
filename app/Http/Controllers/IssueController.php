@@ -9,13 +9,26 @@ use App\Models\Project;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class IssueController extends Controller
 {
-    public function index(Request $request, Project $project): View
+    public function index(Request $request, Project $project): View|Response
     {
-        $issues = $project->issues()
+        $issues = $this->filteredIssues($request, $project);
+        $tags = Tag::orderBy('name')->get();
+
+        if ($request->ajax()) {
+            return response()->view('issues._list', compact('issues'));
+        }
+
+        return view('issues.index', compact('project', 'issues', 'tags'));
+    }
+
+    private function filteredIssues(Request $request, Project $project)
+    {
+        return $project->issues()
             ->with(['tags', 'project'])
             ->when($request->status, fn ($q, $status) => $q->where('status', $status))
             ->when($request->priority, fn ($q, $priority) => $q->where('priority', $priority))
@@ -27,10 +40,6 @@ class IssueController extends Controller
             ->latest()
             ->paginate(10)
             ->withQueryString();
-
-        $tags = Tag::orderBy('name')->get();
-
-        return view('issues.index', compact('project', 'issues', 'tags'));
     }
 
     public function create(Project $project): View
@@ -59,7 +68,7 @@ class IssueController extends Controller
 
     public function show(Issue $issue): View
     {
-        $issue->load(['tags', 'project', 'comments' => fn ($q) => $q->latest()]);
+        $issue->load(['tags', 'project'])->loadCount('comments');
 
         $tags = Tag::orderBy('name')->get();
         $availableTags = $tags->whereNotIn('id', $issue->tags->pluck('id'));

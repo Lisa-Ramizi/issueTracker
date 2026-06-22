@@ -6,7 +6,7 @@
     <div class="page-header">
         <div>
             <h1 class="page-title">{{ $project->name }}</h1>
-            <p class="page-subtitle">Issues · {{ $issues->total() }} result{{ $issues->total() === 1 ? '' : 's' }}</p>
+            <p class="page-subtitle" id="issues-result-count">Issues · {{ $issues->total() }} result{{ $issues->total() === 1 ? '' : 's' }}</p>
         </div>
         <div class="actions">
             <a href="{{ route('projects.show', $project) }}" class="btn btn--ghost">Back to Project</a>
@@ -14,10 +14,10 @@
         </div>
     </div>
 
-    <form method="GET" action="{{ route('projects.issues.index', $project) }}" class="filter-bar card">
+    <form method="GET" action="{{ route('projects.issues.index', $project) }}" class="filter-bar card" id="issues-filter-form">
         <div class="form-group">
             <label for="search">Search</label>
-            <input type="text" id="search" name="search" class="form-control" value="{{ request('search') }}" placeholder="Title or description">
+            <input type="text" id="search" name="search" class="form-control" value="{{ request('search') }}" placeholder="Title or description" autocomplete="off">
         </div>
         <div class="form-group">
             <label for="status">Status</label>
@@ -47,21 +47,14 @@
             </select>
         </div>
         <button type="submit" class="btn btn--primary">Filter</button>
-        <a href="{{ route('projects.issues.index', $project) }}" class="btn btn--ghost">Clear</a>
+        <a href="{{ route('projects.issues.index', $project) }}" class="btn btn--ghost" id="issues-filter-clear">Clear</a>
     </form>
 
-    @if ($issues->isEmpty())
-        <div class="empty-state card">
-            <h2>No issues match</h2>
-            <p>Try adjusting your filters or create a new issue.</p>
-        </div>
-    @else
-        @foreach ($issues as $issue)
-            @include('components.issue-card', ['issue' => $issue])
-        @endforeach
-
-        <div class="pagination">
-            {{ $issues->links() }}
-        </div>
-    @endif
+    <div id="issue-list" data-total="{{ $issues->total() }}">
+        @include('issues._list', ['issues' => $issues])
+    </div>
 @endsection
+
+@push('scripts')
+    @vite(['resources/js/issues-filter.js'])
+@endpush

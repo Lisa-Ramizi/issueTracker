@@ -3,89 +3,95 @@
 @section('title', $issue->title)
 
 @section('content')
-    <div class="page-header">
-        <div>
-            <p class="meta" style="margin: 0 0 0.25rem;">
-                <a href="{{ route('projects.show', $issue->project) }}">{{ $issue->project->name }}</a>
-            </p>
-            <h1 class="page-title">{{ $issue->title }}</h1>
-            <div class="meta-row" style="margin-top: 0.5rem;">
-                <span class="badge badge-{{ $issue->status }}">{{ str_replace('_', ' ', $issue->status) }}</span>
-                <span class="badge badge-{{ $issue->priority }}">{{ $issue->priority }}</span>
-                @if ($issue->due_date)
-                    <span class="meta">Due {{ $issue->due_date->format('M j, Y') }}</span>
-                @endif
+    <div id="issue-show"
+         data-issue-id="{{ $issue->id }}"
+         data-comments-url="{{ route('issues.comments.index', $issue) }}"
+         data-comment-store-url="{{ route('issues.comments.store', $issue) }}">
+
+        <div class="page-header">
+            <div>
+                <p class="meta" style="margin: 0 0 0.25rem;">
+                    <a href="{{ route('projects.show', $issue->project) }}">{{ $issue->project->name }}</a>
+                </p>
+                <h1 class="page-title">{{ $issue->title }}</h1>
+                <div class="meta-row" style="margin-top: 0.5rem;">
+                    <span class="badge badge-{{ $issue->status }}">{{ str_replace('_', ' ', $issue->status) }}</span>
+                    <span class="badge badge-{{ $issue->priority }}">{{ $issue->priority }}</span>
+                    @if ($issue->due_date)
+                        <span class="meta">Due {{ $issue->due_date->format('M j, Y') }}</span>
+                    @endif
+                </div>
+            </div>
+            <div class="actions">
+                <a href="{{ route('issues.edit', $issue) }}" class="btn btn--ghost">Edit</a>
+                <a href="{{ route('projects.show', $issue->project) }}" class="btn btn--ghost">Back</a>
             </div>
         </div>
-        <div class="actions">
-            <a href="{{ route('issues.edit', $issue) }}" class="btn btn--ghost">Edit</a>
-            <a href="{{ route('projects.show', $issue->project) }}" class="btn btn--ghost">Back</a>
-        </div>
-    </div>
 
-    @if ($issue->description)
-        <div class="card">
-            <p style="margin: 0;">{{ $issue->description }}</p>
-        </div>
-    @endif
-
-    <section class="section">
-        <h2 class="section-title">Tags</h2>
-        <div class="card">
-            <div class="meta-row" style="margin-top: 0;">
-                @forelse ($issue->tags as $tag)
-                    @include('components.tag-chip', ['tag' => $tag, 'issue' => $issue, 'removable' => true])
-                @empty
-                    <span class="meta">No tags yet.</span>
-                @endforelse
+        @if ($issue->description)
+            <div class="card">
+                <p style="margin: 0;">{{ $issue->description }}</p>
             </div>
+        @endif
 
-            @if ($availableTags->isNotEmpty())
-                <form method="POST" action="{{ route('issues.tags.attach', [$issue, $availableTags->first()]) }}" class="inline-form" style="margin-top: 1rem;" id="attach-tag-form">
-                    @csrf
+        <section class="section">
+            <h2 class="section-title">Tags</h2>
+            <div class="card">
+                <div class="meta-row" style="margin-top: 0;" id="issue-tags">
+                    @forelse ($issue->tags as $tag)
+                        <span class="tag-chip-wrapper" data-tag-id="{{ $tag->id }}">
+                            <span class="tag-chip" style="background-color: {{ $tag->color ?? '#D8D8D0' }}">{{ $tag->name }}</span>
+                            <button type="button" class="tag-chip__remove" data-tag-id="{{ $tag->id }}" title="Remove tag">&times;</button>
+                        </span>
+                    @empty
+                        <span class="meta" id="tags-empty">No tags yet.</span>
+                    @endforelse
+                </div>
+
+                <div class="inline-form" id="tag-attach-group" style="margin-top: 1rem;{{ $availableTags->isEmpty() ? ' display: none;' : '' }}">
                     <div class="form-group">
-                        <label for="tag_select">Add tag</label>
-                        <select id="tag_select" class="form-control" onchange="document.getElementById('attach-tag-form').action = this.value">
+                        <label for="tag-attach-select">Add tag</label>
+                        <select id="tag-attach-select" class="form-control">
+                            <option value="">Choose a tag…</option>
                             @foreach ($availableTags as $tag)
-                                <option value="{{ route('issues.tags.attach', [$issue, $tag]) }}">{{ $tag->name }}</option>
+                                <option value="{{ $tag->id }}">{{ $tag->name }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <button type="submit" class="btn btn--primary btn--sm">Attach</button>
+                    <button type="button" id="tag-attach-btn" class="btn btn--primary btn--sm">Attach</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Comments (<span id="comment-count">{{ $issue->comments_count }}</span>)</h2>
+
+            <div class="card">
+                <div id="comments-list"></div>
+                <button type="button" id="comments-load-more" class="btn btn--ghost btn--sm" style="display: none; margin-top: 0.75rem;">Load more</button>
+            </div>
+
+            <div class="card" style="margin-top: 1rem;">
+                <div id="comment-success" class="flash flash--success" style="display: none; margin-bottom: 1rem;">Comment added.</div>
+
+                <form id="comment-form">
+                    <div class="form-group">
+                        <label for="author_name">Your Name</label>
+                        <input type="text" id="author_name" name="author_name" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="body">Comment</label>
+                        <textarea id="body" name="body" class="form-control" rows="3" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn--primary">Add Comment</button>
                 </form>
-            @endif
-        </div>
-    </section>
-
-    <section class="section">
-        <h2 class="section-title">Comments ({{ $issue->comments->count() }})</h2>
-
-        <div class="card">
-            @forelse ($issue->comments as $comment)
-                @include('components.comment', ['comment' => $comment])
-            @empty
-                <p class="meta" style="margin: 0;">No comments yet. Be the first!</p>
-            @endforelse
-        </div>
-
-        <div class="card" style="margin-top: 1rem;">
-            <form method="POST" action="{{ route('issues.comments.store', $issue) }}">
-                @csrf
-
-                <div class="form-group">
-                    <label for="author_name">Your Name</label>
-                    <input type="text" id="author_name" name="author_name" class="form-control" value="{{ old('author_name') }}" required>
-                    @error('author_name')<div class="form-error">{{ $message }}</div>@enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="body">Comment</label>
-                    <textarea id="body" name="body" class="form-control" rows="3" required>{{ old('body') }}</textarea>
-                    @error('body')<div class="form-error">{{ $message }}</div>@enderror
-                </div>
-
-                <button type="submit" class="btn btn--primary">Add Comment</button>
-            </form>
-        </div>
-    </section>
+            </div>
+        </section>
+    </div>
 @endsection
+
+@push('scripts')
+    @vite(['resources/js/issue-show.js'])
+@endpush
