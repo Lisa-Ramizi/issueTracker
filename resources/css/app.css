@@ -91,9 +91,9 @@ a {
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    background: var(--matcha-light);
+    background: transparent;
     text-decoration: none;
-    color: var(--matcha);
+    color: var(--muted);
     flex-shrink: 0;
 }
 
