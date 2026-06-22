@@ -6,9 +6,11 @@
         <p>Try adjusting your filters or create a new issue.</p>
     </div>
 @else
-    @foreach ($issues as $issue)
-        @include('components.issue-card', ['issue' => $issue])
-    @endforeach
+    <div class="kanban__cards">
+        @foreach ($issues as $issue)
+            @include('components.issue-card', ['issue' => $issue])
+        @endforeach
+    </div>
 
     <div class="pagination">
         {{ $issues->links() }}

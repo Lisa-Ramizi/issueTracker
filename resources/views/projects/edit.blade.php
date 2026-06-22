@@ -5,9 +5,10 @@
 @section('content')
     <div class="page-header">
         <h1 class="page-title">Edit Project</h1>
+        <p class="page-subtitle">{{ $project->name }}</p>
     </div>
 
-    <div class="card">
+    <div class="card form-card">
         <form method="POST" action="{{ route('projects.update', $project) }}">
             @csrf
             @method('PUT')

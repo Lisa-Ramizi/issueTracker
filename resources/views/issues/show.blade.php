@@ -8,29 +8,31 @@
          data-comments-url="{{ route('issues.comments.index', $issue) }}"
          data-comment-store-url="{{ route('issues.comments.store', $issue) }}">
 
-        <div class="page-header">
-            <div>
-                <p class="meta" style="margin: 0 0 0.25rem;">
-                    <a href="{{ route('projects.show', $issue->project) }}">{{ $issue->project->name }}</a>
-                </p>
-                <h1 class="page-title">{{ $issue->title }}</h1>
-                <div class="meta-row" style="margin-top: 0.5rem;">
-                    <span class="badge badge-{{ $issue->status }}">{{ str_replace('_', ' ', $issue->status) }}</span>
-                    <span class="badge badge-{{ $issue->priority }}">{{ $issue->priority }}</span>
-                    @if ($issue->due_date)
-                        <span class="meta">Due {{ $issue->due_date->format('M j, Y') }}</span>
-                    @endif
+        <div class="issue-hero">
+            <div class="page-header" style="margin-bottom: 0;">
+                <div>
+                    <p class="meta" style="margin: 0 0 0.35rem;">
+                        <a href="{{ route('projects.show', $issue->project) }}">{{ $issue->project->name }}</a>
+                    </p>
+                    <h1 class="page-title">{{ $issue->title }}</h1>
+                    <div class="meta-pills" style="margin-top: 0.75rem;">
+                        <span class="badge badge-{{ $issue->status }}">{{ str_replace('_', ' ', $issue->status) }}</span>
+                        <span class="badge badge-{{ $issue->priority }}">{{ $issue->priority }}</span>
+                        @if ($issue->due_date)
+                            <span class="meta-pill">Due {{ $issue->due_date->format('M j, Y') }}</span>
+                        @endif
+                    </div>
                 </div>
-            </div>
-            <div class="actions">
-                <a href="{{ route('issues.edit', $issue) }}" class="btn btn--ghost">Edit</a>
-                <a href="{{ route('projects.show', $issue->project) }}" class="btn btn--ghost">Back</a>
+                <div class="actions">
+                    <a href="{{ route('issues.edit', $issue) }}" class="btn btn--ghost">Edit</a>
+                    <a href="{{ route('projects.show', $issue->project) }}" class="btn btn--ghost">Board</a>
+                </div>
             </div>
         </div>
 
         @if ($issue->description)
             <div class="card">
-                <p style="margin: 0;">{{ $issue->description }}</p>
+                <p style="margin: 0; line-height: 1.6;">{{ $issue->description }}</p>
             </div>
         @endif
 
@@ -40,7 +42,7 @@
                 <div class="meta-row" style="margin-top: 0;" id="issue-tags">
                     @forelse ($issue->tags as $tag)
                         <span class="tag-chip-wrapper" data-tag-id="{{ $tag->id }}">
-                            <span class="tag-chip" style="background-color: {{ $tag->color ?? '#D8D8D0' }}">{{ $tag->name }}</span>
+                            <span class="tag-chip" style="background-color: {{ $tag->color ?? '#F5D0DC' }}">{{ $tag->name }}</span>
                             <button type="button" class="tag-chip__remove" data-tag-id="{{ $tag->id }}" title="Remove tag">&times;</button>
                         </span>
                     @empty

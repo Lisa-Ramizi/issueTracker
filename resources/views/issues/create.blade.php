@@ -9,10 +9,11 @@
                 <a href="{{ route('projects.show', $project) }}">{{ $project->name }}</a>
             </p>
             <h1 class="page-title">New Issue</h1>
+            <p class="page-subtitle">Add a card to the board.</p>
         </div>
     </div>
 
-    <div class="card">
+    <div class="card form-card">
         <form method="POST" action="{{ route('projects.issues.store', $project) }}">
             @csrf
 

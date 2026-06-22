@@ -5,9 +5,10 @@
 @section('content')
     <div class="page-header">
         <h1 class="page-title">New Project</h1>
+        <p class="page-subtitle">Give it a name and optional timeline.</p>
     </div>
 
-    <div class="card">
+    <div class="card form-card">
         <form method="POST" action="{{ route('projects.store') }}">
             @csrf
 

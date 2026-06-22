@@ -137,7 +137,7 @@ function initIssueShow() {
     });
 
     function renderTagChip(tag) {
-        const color = tag.color || '#D8D8D0';
+        const color = tag.color || '#F5D0DC';
         const wrapper = document.createElement('span');
         wrapper.className = 'tag-chip-wrapper';
         wrapper.dataset.tagId = tag.id;

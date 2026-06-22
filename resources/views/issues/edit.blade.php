@@ -12,7 +12,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card form-card">
         <form method="POST" action="{{ route('issues.update', $issue) }}">
             @csrf
             @method('PUT')

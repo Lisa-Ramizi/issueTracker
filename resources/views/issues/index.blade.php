@@ -5,16 +5,24 @@
 @section('content')
     <div class="page-header">
         <div>
-            <h1 class="page-title">{{ $project->name }}</h1>
-            <p class="page-subtitle" id="issues-result-count">Issues · {{ $issues->total() }} result{{ $issues->total() === 1 ? '' : 's' }}</p>
+            <p class="meta" style="margin: 0 0 0.25rem;">
+                <a href="{{ route('projects.show', $project) }}">{{ $project->name }}</a>
+            </p>
+            <h1 class="page-title">All Issues</h1>
+            <p class="page-subtitle" id="issues-result-count">{{ $issues->total() }} result{{ $issues->total() === 1 ? '' : 's' }}</p>
         </div>
         <div class="actions">
-            <a href="{{ route('projects.show', $project) }}" class="btn btn--ghost">Back to Project</a>
-            <a href="{{ route('projects.issues.create', $project) }}" class="btn btn--primary">New Issue</a>
+            <a href="{{ route('projects.show', $project) }}" class="btn btn--ghost">Board</a>
+            <a href="{{ route('projects.issues.create', $project) }}" class="btn btn--primary">+ New Issue</a>
         </div>
     </div>
 
-    <form method="GET" action="{{ route('projects.issues.index', $project) }}" class="filter-bar card" id="issues-filter-form">
+    <div class="view-tabs">
+        <a href="{{ route('projects.show', $project) }}" class="view-tab">Board</a>
+        <span class="view-tab view-tab--active">List</span>
+    </div>
+
+    <form method="GET" action="{{ route('projects.issues.index', $project) }}" class="filter-bar" id="issues-filter-form">
         <div class="form-group">
             <label for="search">Search</label>
             <input type="text" id="search" name="search" class="form-control" value="{{ request('search') }}" placeholder="Title or description" autocomplete="off">

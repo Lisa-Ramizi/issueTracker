@@ -1,4 +1,4 @@
-<span class="tag-chip" style="background-color: {{ $tag->color ?? '#D8D8D0' }}">
+<span class="tag-chip" style="background-color: {{ $tag->color ?? '#F5D0DC' }}">
     {{ $tag->name }}
 </span>
 @if (isset($removable) && isset($issue))

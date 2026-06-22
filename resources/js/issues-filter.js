@@ -21,7 +21,7 @@ function initIssuesFilter() {
         const total = meta ? meta.dataset.total : list.dataset.total;
         if (subtitle && total !== undefined) {
             const count = parseInt(total, 10);
-            subtitle.textContent = `Issues · ${count} result${count === 1 ? '' : 's'}`;
+            subtitle.textContent = `${count} result${count === 1 ? '' : 's'}`;
             list.dataset.total = total;
         }
 
