@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreTagRequest extends FormRequest
 {
@@ -13,6 +14,9 @@ class StoreTagRequest extends FormRequest
 
     public function rules(): array
     {
-        return [];
+        return [
+            'name' => ['required', 'string', 'max:255', Rule::unique('tags', 'name')],
+            'color' => ['nullable', 'string', 'max:7'],
+        ];
     }
 }

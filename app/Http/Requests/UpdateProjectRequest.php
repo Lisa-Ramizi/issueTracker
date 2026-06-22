@@ -13,6 +13,11 @@ class UpdateProjectRequest extends FormRequest
 
     public function rules(): array
     {
-        return [];
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'start_date' => ['nullable', 'date'],
+            'deadline' => ['nullable', 'date'],
+        ];
     }
 }

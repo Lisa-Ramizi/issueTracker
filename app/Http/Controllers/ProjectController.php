@@ -2,42 +2,73 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
+use App\Models\Tag;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class ProjectController extends Controller
 {
-    public function index()
+    public function index(): View
     {
-        return view('placeholder', ['title' => 'Projects — Index']);
+        $projects = Project::query()
+            ->withCount('issues')
+            ->latest()
+            ->paginate(10);
+
+        return view('projects.index', compact('projects'));
     }
 
-    public function create()
+    public function create(): View
     {
-        return view('placeholder', ['title' => 'Projects — Create']);
+        return view('projects.create');
     }
 
-    public function store()
+    public function store(StoreProjectRequest $request): RedirectResponse
     {
-        return view('placeholder', ['title' => 'Projects — Store']);
+        $project = Project::create($request->validated());
+
+        return redirect()
+            ->route('projects.show', $project)
+            ->with('success', 'Project created.');
     }
 
-    public function show(Project $project)
+    public function show(Project $project): View
     {
-        return view('placeholder', ['title' => 'Projects — Show #'.$project->id]);
+        $project->loadCount('issues');
+
+        $issues = $project->issues()
+            ->with('tags')
+            ->latest()
+            ->paginate(10);
+
+        $tags = Tag::orderBy('name')->get();
+
+        return view('projects.show', compact('project', 'issues', 'tags'));
     }
 
-    public function edit(Project $project)
+    public function edit(Project $project): View
     {
-        return view('placeholder', ['title' => 'Projects — Edit #'.$project->id]);
+        return view('projects.edit', compact('project'));
     }
 
-    public function update(Project $project)
+    public function update(UpdateProjectRequest $request, Project $project): RedirectResponse
     {
-        return view('placeholder', ['title' => 'Projects — Update #'.$project->id]);
+        $project->update($request->validated());
+
+        return redirect()
+            ->route('projects.show', $project)
+            ->with('success', 'Project updated.');
     }
 
-    public function destroy(Project $project)
+    public function destroy(Project $project): RedirectResponse
     {
-        return view('placeholder', ['title' => 'Projects — Destroy #'.$project->id]);
+        $project->delete();
+
+        return redirect()
+            ->route('projects.index')
+            ->with('success', 'Project deleted.');
     }
 }
