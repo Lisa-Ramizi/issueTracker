@@ -15,31 +15,18 @@ class IssueController extends Controller
 {
     public function index(Request $request, Project $project): View
     {
-        $query = $project->issues()->with(['tags', 'project']);
-
-        if ($request->filled('priority')) {
-            $issues = $query
-                ->where('priority', $request->priority)
-                ->when($request->tag_id, fn ($q, $tagId) => $q->whereHas('tags', fn ($q) => $q->where('tags.id', $tagId)))
-                ->when($request->search, fn ($q, $search) => $q->where(function ($q) use ($search) {
-                    $q->where('title', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%");
-                }))
-                ->latest()
-                ->paginate(10)
-                ->withQueryString();
-        } else {
-            $issues = $query
-                ->when($request->status, fn ($q, $status) => $q->where('status', $status))
-                ->when($request->tag_id, fn ($q, $tagId) => $q->whereHas('tags', fn ($q) => $q->where('tags.id', $tagId)))
-                ->when($request->search, fn ($q, $search) => $q->where(function ($q) use ($search) {
-                    $q->where('title', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%");
-                }))
-                ->latest()
-                ->paginate(10)
-                ->withQueryString();
-        }
+        $issues = $project->issues()
+            ->with(['tags', 'project'])
+            ->when($request->status, fn ($q, $status) => $q->where('status', $status))
+            ->when($request->priority, fn ($q, $priority) => $q->where('priority', $priority))
+            ->when($request->tag_id, fn ($q, $tagId) => $q->whereHas('tags', fn ($q) => $q->where('tags.id', $tagId)))
+            ->when($request->search, fn ($q, $search) => $q->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            }))
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
         $tags = Tag::orderBy('name')->get();
 
