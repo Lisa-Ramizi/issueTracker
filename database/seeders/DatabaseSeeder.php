@@ -16,13 +16,29 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        User::factory()->create([
+        $admin = User::factory()->create([
             'name' => 'Admin',
             'email' => 'admin@example.com',
             'password' => 'admin',
         ]);
 
-        $projects = Project::factory(4)->create();
+        $team = User::factory()->createMany([
+            ['name' => 'Alex Rivera', 'email' => 'alex@example.com'],
+            ['name' => 'Jordan Lee', 'email' => 'jordan@example.com'],
+            ['name' => 'Sam Patel', 'email' => 'sam@example.com'],
+        ]);
+
+        $users = collect([$admin, ...$team]);
+
+        $projects = $users->flatMap(function (User $user) {
+            return Project::factory(1)->create(['user_id' => $user->id]);
+        });
+
+        if ($projects->count() < 4) {
+            $projects = $projects->merge(
+                Project::factory(4 - $projects->count())->create(['user_id' => $admin->id])
+            );
+        }
 
         $tags = collect([
             ['name' => 'bug', 'color' => '#E8A1B3'],
@@ -48,6 +64,10 @@ class DatabaseSeeder extends Seeder
         foreach ($issues as $issue) {
             $issue->tags()->attach(
                 $tags->random(fake()->numberBetween(2, 4))->pluck('id')
+            );
+
+            $issue->users()->attach(
+                $users->random(fake()->numberBetween(1, 3))->pluck('id')
             );
         }
 

@@ -27,7 +27,10 @@ class ProjectController extends Controller
 
     public function store(StoreProjectRequest $request): RedirectResponse
     {
-        $project = Project::create($request->validated());
+        $project = Project::create([
+            ...$request->validated(),
+            'user_id' => $request->user()->id,
+        ]);
 
         return redirect()
             ->route('projects.show', $project)
@@ -39,7 +42,7 @@ class ProjectController extends Controller
         $project->loadCount('issues');
 
         $issuesByStatus = $project->issues()
-            ->with('tags')
+            ->with(['tags', 'users'])
             ->latest()
             ->get()
             ->groupBy('status');
@@ -49,11 +52,15 @@ class ProjectController extends Controller
 
     public function edit(Project $project): View
     {
+        $this->authorize('update', $project);
+
         return view('projects.edit', compact('project'));
     }
 
     public function update(UpdateProjectRequest $request, Project $project): RedirectResponse
     {
+        $this->authorize('update', $project);
+
         $project->update($request->validated());
 
         return redirect()
@@ -63,6 +70,8 @@ class ProjectController extends Controller
 
     public function destroy(Project $project): RedirectResponse
     {
+        $this->authorize('delete', $project);
+
         $project->delete();
 
         return redirect()

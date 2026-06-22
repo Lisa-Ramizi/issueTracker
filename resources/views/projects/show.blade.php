@@ -22,7 +22,9 @@
         </div>
         <div class="actions">
             <a href="{{ route('projects.issues.create', $project) }}" class="btn btn--primary">+ New Issue</a>
-            <a href="{{ route('projects.edit', $project) }}" class="btn btn--ghost">Edit Project</a>
+            @can('update', $project)
+                <a href="{{ route('projects.edit', $project) }}" class="btn btn--ghost">Edit Project</a>
+            @endcan
         </div>
     </div>
 

@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateIssueRequest;
 use App\Models\Issue;
 use App\Models\Project;
 use App\Models\Tag;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -68,12 +69,15 @@ class IssueController extends Controller
 
     public function show(Issue $issue): View
     {
-        $issue->load(['tags', 'project'])->loadCount('comments');
+        $issue->load(['tags', 'project', 'comments', 'users'])->loadCount('comments');
 
         $tags = Tag::orderBy('name')->get();
         $availableTags = $tags->whereNotIn('id', $issue->tags->pluck('id'));
 
-        return view('issues.show', compact('issue', 'tags', 'availableTags'));
+        $users = User::orderBy('name')->get();
+        $availableUsers = $users->whereNotIn('id', $issue->users->pluck('id'));
+
+        return view('issues.show', compact('issue', 'tags', 'availableTags', 'availableUsers'));
     }
 
     public function edit(Issue $issue): View

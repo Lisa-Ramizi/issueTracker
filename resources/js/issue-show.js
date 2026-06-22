@@ -23,6 +23,12 @@ function initIssueShow() {
     const tagAttachBtn = document.getElementById('tag-attach-btn');
     const tagAttachGroup = document.getElementById('tag-attach-group');
 
+    const membersList = document.getElementById('issue-members');
+    const membersEmpty = document.getElementById('members-empty');
+    const memberAttachSelect = document.getElementById('member-attach-select');
+    const memberAttachBtn = document.getElementById('member-attach-btn');
+    const memberAttachGroup = document.getElementById('member-attach-group');
+
     let commentsNextUrl = `${commentsUrl}?page=1`;
 
     function renderComment(comment, prepend = false) {
@@ -230,6 +236,100 @@ function initIssueShow() {
         tagsList.appendChild(renderTagChip(tag));
         removeAvailableTagOption(tag.id);
         tagAttachSelect.value = '';
+    });
+
+    function renderMemberChip(user) {
+        const wrapper = document.createElement('span');
+        wrapper.className = 'member-chip-wrapper';
+        wrapper.dataset.userId = user.id;
+        wrapper.innerHTML = `
+            <span class="member-chip">${escapeHtml(user.name)}</span>
+            <button type="button" class="member-chip__remove" data-user-id="${user.id}" title="Remove member">&times;</button>
+        `;
+        return wrapper;
+    }
+
+    function addAvailableMemberOption(user) {
+        if (!memberAttachSelect) {
+            return;
+        }
+
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = user.name;
+        memberAttachSelect.appendChild(option);
+
+        if (memberAttachGroup) {
+            memberAttachGroup.style.display = '';
+        }
+    }
+
+    function removeAvailableMemberOption(userId) {
+        if (!memberAttachSelect) {
+            return;
+        }
+
+        const option = memberAttachSelect.querySelector(`option[value="${userId}"]`);
+        option?.remove();
+
+        if (memberAttachSelect.options.length <= 1 && memberAttachGroup) {
+            memberAttachGroup.style.display = 'none';
+        }
+    }
+
+    membersList?.addEventListener('click', async (event) => {
+        const button = event.target.closest('.member-chip__remove');
+        if (!button) {
+            return;
+        }
+
+        const userId = button.dataset.userId;
+        const response = await fetch(`/issues/${issueId}/users/${userId}/detach`, {
+            method: 'DELETE',
+            headers: csrfHeaders(false),
+        });
+
+        if (!response.ok) {
+            return;
+        }
+
+        const wrapper = button.closest('.member-chip-wrapper');
+        const userName = wrapper.querySelector('.member-chip').textContent;
+
+        wrapper.remove();
+
+        if (membersList.children.length === 0) {
+            membersList.innerHTML = '<span class="meta" id="members-empty">No members assigned yet.</span>';
+        }
+
+        addAvailableMemberOption({ id: userId, name: userName });
+    });
+
+    memberAttachBtn?.addEventListener('click', async () => {
+        const userId = memberAttachSelect.value;
+        if (!userId) {
+            return;
+        }
+
+        const response = await fetch(`/issues/${issueId}/users/${userId}/attach`, {
+            method: 'POST',
+            headers: csrfHeaders(false),
+        });
+
+        if (!response.ok) {
+            return;
+        }
+
+        const json = await response.json();
+        const user = json.user;
+
+        if (membersEmpty) {
+            membersEmpty.remove();
+        }
+
+        membersList.appendChild(renderMemberChip(user));
+        removeAvailableMemberOption(user.id);
+        memberAttachSelect.value = '';
     });
 }
 

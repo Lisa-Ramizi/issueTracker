@@ -66,6 +66,35 @@
         </section>
 
         <section class="section">
+            <h2 class="section-title">Members</h2>
+            <div class="card">
+                <div class="meta-row" style="margin-top: 0;" id="issue-members">
+                    @forelse ($issue->users as $member)
+                        <span class="member-chip-wrapper" data-user-id="{{ $member->id }}">
+                            <span class="member-chip">{{ $member->name }}</span>
+                            <button type="button" class="member-chip__remove" data-user-id="{{ $member->id }}" title="Remove member">&times;</button>
+                        </span>
+                    @empty
+                        <span class="meta" id="members-empty">No members assigned yet.</span>
+                    @endforelse
+                </div>
+
+                <div class="inline-form" id="member-attach-group" style="margin-top: 1rem;{{ $availableUsers->isEmpty() ? ' display: none;' : '' }}">
+                    <div class="form-group">
+                        <label for="member-attach-select">Add member</label>
+                        <select id="member-attach-select" class="form-control">
+                            <option value="">Choose a member…</option>
+                            @foreach ($availableUsers as $member)
+                                <option value="{{ $member->id }}">{{ $member->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <button type="button" id="member-attach-btn" class="btn btn--primary btn--sm">Assign</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
             <h2 class="section-title">Comments (<span id="comment-count">{{ $issue->comments_count }}</span>)</h2>
 
             <div class="card">

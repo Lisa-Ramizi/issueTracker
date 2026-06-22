@@ -45,10 +45,12 @@
     </div>
 
     <div class="section">
-        <form method="POST" action="{{ route('projects.destroy', $project) }}" onsubmit="return confirm('Delete this project and all its issues?')">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn--danger">Delete Project</button>
-        </form>
+        @can('delete', $project)
+            <form method="POST" action="{{ route('projects.destroy', $project) }}" onsubmit="return confirm('Delete this project and all its issues?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn--danger">Delete Project</button>
+            </form>
+        @endcan
     </div>
 @endsection
