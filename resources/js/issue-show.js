@@ -29,7 +29,33 @@ function initIssueShow() {
     const memberAttachBtn = document.getElementById('member-attach-btn');
     const memberAttachGroup = document.getElementById('member-attach-group');
 
+    const activityList = document.getElementById('activity-list');
+    const activityEmpty = document.getElementById('activity-empty');
+
     let commentsNextUrl = `${commentsUrl}?page=1`;
+
+    function prependActivity(activity) {
+        if (!activity || !activityList) {
+            return;
+        }
+
+        activityEmpty?.remove();
+
+        const html = `
+            <li class="activity-item" data-activity-id="${activity.id}">
+                <div class="activity-item__dot"></div>
+                <div class="activity-item__body">
+                    <p class="activity-item__message">${escapeHtml(activity.message)}</p>
+                    <p class="activity-item__meta">
+                        <span class="activity-item__user">${escapeHtml(activity.user_name)}</span>
+                        <span class="activity-item__time">${escapeHtml(activity.created_at_human || 'just now')}</span>
+                    </p>
+                </div>
+            </li>
+        `;
+
+        activityList.insertAdjacentHTML('afterbegin', html);
+    }
 
     function renderComment(comment, prepend = false) {
         const html = `
@@ -134,6 +160,7 @@ function initIssueShow() {
 
         const json = await response.json();
         renderComment(json.comment, true);
+        prependActivity(json.activity);
         commentForm.reset();
         commentSuccess.style.display = 'block';
 
@@ -197,6 +224,9 @@ function initIssueShow() {
             return;
         }
 
+        const json = await response.json();
+        prependActivity(json.activity);
+
         const wrapper = button.closest('.tag-chip-wrapper');
         const tagName = wrapper.querySelector('.tag-chip').textContent;
         const tagColor = wrapper.querySelector('.tag-chip').style.backgroundColor;
@@ -235,6 +265,7 @@ function initIssueShow() {
         tagsList.appendChild(renderTagChip(tag));
         removeAvailableTagOption(tag.id);
         tagAttachSelect.value = '';
+        prependActivity(json.activity);
     });
 
     function renderMemberChip(user) {
@@ -292,6 +323,9 @@ function initIssueShow() {
             return;
         }
 
+        const json = await response.json();
+        prependActivity(json.activity);
+
         const wrapper = button.closest('.member-chip-wrapper');
         const userName = wrapper.querySelector('.member-chip').textContent;
 
@@ -329,6 +363,7 @@ function initIssueShow() {
         membersList.appendChild(renderMemberChip(user));
         removeAvailableMemberOption(user.id);
         memberAttachSelect.value = '';
+        prependActivity(json.activity);
     });
 }
 

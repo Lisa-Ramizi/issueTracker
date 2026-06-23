@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCommentRequest;
 use App\Models\Issue;
+use App\Models\IssueActivity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,6 +35,8 @@ class CommentController extends Controller
             'author_name' => $request->user()->name,
         ]);
 
+        $activity = IssueActivity::log($issue, $request->user(), 'comment_added');
+
         if ($request->expectsJson()) {
             return response()->json([
                 'comment' => [
@@ -42,6 +45,7 @@ class CommentController extends Controller
                     'created_at' => $comment->created_at->toIso8601String(),
                     'created_at_human' => $comment->created_at->diffForHumans(),
                 ],
+                'activity' => $activity->load('user')->toTimelineArray(),
             ], 201);
         }
 

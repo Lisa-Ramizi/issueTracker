@@ -220,4 +220,50 @@ class QaChecklistTest extends TestCase
 
         $this->assertLessThanOrEqual(2, $issueCountQueries, 'Expected a single withCount query, not N+1');
     }
+
+    public function test_issue_status_update_via_kanban_returns_json(): void
+    {
+        $this->issue->update(['status' => 'open']);
+
+        $this->actingAs($this->user)
+            ->patchJson(route('issues.status.update', $this->issue), ['status' => 'in_progress'])
+            ->assertOk()
+            ->assertJson([
+                'status' => 'in_progress',
+                'progress' => 55,
+            ]);
+
+        $this->assertDatabaseHas('issues', [
+            'id' => $this->issue->id,
+            'status' => 'in_progress',
+        ]);
+
+        $this->assertDatabaseHas('issue_activities', [
+            'issue_id' => $this->issue->id,
+            'action' => 'status_changed',
+            'from_value' => 'open',
+            'to_value' => 'in_progress',
+        ]);
+    }
+
+    public function test_issue_show_displays_activity_timeline(): void
+    {
+        \App\Models\IssueActivity::log($this->issue, $this->user, 'comment_added');
+
+        $this->actingAs($this->user)
+            ->get(route('issues.show', $this->issue))
+            ->assertOk()
+            ->assertSee('Activity')
+            ->assertSee('Added a comment');
+    }
+
+    public function test_activities_index_returns_json(): void
+    {
+        \App\Models\IssueActivity::log($this->issue, $this->user, 'created');
+
+        $this->actingAs($this->user)
+            ->getJson(route('issues.activities.index', $this->issue))
+            ->assertOk()
+            ->assertJsonStructure(['data', 'next_page_url']);
+    }
 }

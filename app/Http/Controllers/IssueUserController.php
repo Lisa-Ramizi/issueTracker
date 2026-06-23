@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Issue;
+use App\Models\IssueActivity;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -14,6 +15,8 @@ class IssueUserController extends Controller
     {
         $issue->users()->syncWithoutDetaching([$user->id]);
 
+        $activity = IssueActivity::log($issue, $request->user(), 'member_assigned', subject: $user->name);
+
         if ($request->expectsJson()) {
             return response()->json([
                 'attached' => true,
@@ -21,6 +24,7 @@ class IssueUserController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                 ],
+                'activity' => $activity->load('user')->toTimelineArray(),
             ]);
         }
 
@@ -33,8 +37,13 @@ class IssueUserController extends Controller
     {
         $issue->users()->detach($user->id);
 
+        $activity = IssueActivity::log($issue, $request->user(), 'member_unassigned', subject: $user->name);
+
         if ($request->expectsJson()) {
-            return response()->json(['detached' => true]);
+            return response()->json([
+                'detached' => true,
+                'activity' => $activity->load('user')->toTimelineArray(),
+            ]);
         }
 
         return redirect()

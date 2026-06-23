@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreIssueRequest;
 use App\Http\Requests\UpdateIssueRequest;
+use App\Http\Requests\UpdateIssueStatusRequest;
 use App\Models\Issue;
+use App\Models\IssueActivity;
 use App\Models\Project;
 use App\Models\Tag;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -62,6 +65,8 @@ class IssueController extends Controller
             $issue->tags()->sync($tagIds);
         }
 
+        IssueActivity::log($issue, $request->user(), 'created');
+
         return redirect()
             ->route('issues.show', $issue)
             ->with('success', 'Issue created.');
@@ -71,13 +76,15 @@ class IssueController extends Controller
     {
         $issue->load(['tags', 'project', 'comments', 'users'])->loadCount('comments');
 
+        $activities = $issue->activities()->with('user')->latest()->take(20)->get();
+
         $tags = Tag::orderBy('name')->get();
         $availableTags = $tags->whereNotIn('id', $issue->tags->pluck('id'));
 
         $users = User::orderBy('name')->get();
         $availableUsers = $users->whereNotIn('id', $issue->users->pluck('id'));
 
-        return view('issues.show', compact('issue', 'tags', 'availableTags', 'availableUsers'));
+        return view('issues.show', compact('issue', 'tags', 'availableTags', 'availableUsers', 'activities'));
     }
 
     public function edit(Issue $issue): View
@@ -94,12 +101,64 @@ class IssueController extends Controller
         $tagIds = $data['tag_ids'] ?? [];
         unset($data['tag_ids']);
 
+        $oldStatus = $issue->status;
+        $oldPriority = $issue->priority;
+        $oldTagIds = $issue->tags()->pluck('tags.id');
+
         $issue->update($data);
+
+        if ($oldStatus !== $issue->status) {
+            IssueActivity::log($issue, $request->user(), 'status_changed', from: $oldStatus, to: $issue->status);
+        }
+
+        if ($oldPriority !== $issue->priority) {
+            IssueActivity::log($issue, $request->user(), 'priority_changed', from: $oldPriority, to: $issue->priority);
+        }
+
         $issue->tags()->sync($tagIds);
+
+        $newTagIds = collect($tagIds);
+        $addedTagIds = $newTagIds->diff($oldTagIds);
+        $removedTagIds = $oldTagIds->diff($newTagIds);
+
+        if ($addedTagIds->isNotEmpty() || $removedTagIds->isNotEmpty()) {
+            $tagNames = Tag::whereIn('id', $addedTagIds->merge($removedTagIds))->pluck('name', 'id');
+
+            foreach ($addedTagIds as $tagId) {
+                IssueActivity::log($issue, $request->user(), 'tag_attached', subject: $tagNames[$tagId] ?? 'tag');
+            }
+
+            foreach ($removedTagIds as $tagId) {
+                IssueActivity::log($issue, $request->user(), 'tag_detached', subject: $tagNames[$tagId] ?? 'tag');
+            }
+        }
 
         return redirect()
             ->route('issues.show', $issue)
             ->with('success', 'Issue updated.');
+    }
+
+    public function updateStatus(UpdateIssueStatusRequest $request, Issue $issue): JsonResponse
+    {
+        $newStatus = $request->validated('status');
+
+        if ($issue->status === $newStatus) {
+            return response()->json([
+                'status' => $newStatus,
+                'progress' => Issue::progressForStatus($newStatus),
+            ]);
+        }
+
+        $oldStatus = $issue->status;
+        $issue->update(['status' => $newStatus]);
+
+        $activity = IssueActivity::log($issue, $request->user(), 'status_changed', from: $oldStatus, to: $newStatus);
+
+        return response()->json([
+            'status' => $newStatus,
+            'progress' => Issue::progressForStatus($newStatus),
+            'activity' => $activity->load('user')->toTimelineArray(),
+        ]);
     }
 
     public function destroy(Issue $issue): RedirectResponse

@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/issue-show.js',
                 'resources/js/issues-filter.js',
+                'resources/js/project-show.js',
             ],
             refresh: true,
         }),

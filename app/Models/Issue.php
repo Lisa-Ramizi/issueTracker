@@ -48,4 +48,18 @@ class Issue extends Model
     {
         return $this->belongsToMany(User::class);
     }
+
+    public function activities(): HasMany
+    {
+        return $this->hasMany(IssueActivity::class)->latest();
+    }
+
+    public static function progressForStatus(string $status): int
+    {
+        return match ($status) {
+            'in_progress' => 55,
+            'closed' => 100,
+            default => 15,
+        };
+    }
 }

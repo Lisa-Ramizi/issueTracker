@@ -37,6 +37,19 @@
         @endif
 
         <section class="section">
+            <h2 class="section-title">Activity</h2>
+            <div class="card">
+                <ul id="activity-list" class="activity-timeline">
+                    @forelse ($activities as $activity)
+                        @include('components.activity-item', ['activity' => $activity])
+                    @empty
+                        <li class="meta" id="activity-empty" style="list-style: none; margin: 0;">No activity yet.</li>
+                    @endforelse
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
             <h2 class="section-title">Tags</h2>
             <div class="card">
                 <div class="meta-row" style="margin-top: 0;" id="issue-tags">

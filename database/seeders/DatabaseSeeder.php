@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Comment;
 use App\Models\Issue;
+use App\Models\IssueActivity;
 use App\Models\Project;
 use App\Models\Tag;
 use App\Models\User;
@@ -69,6 +70,8 @@ class DatabaseSeeder extends Seeder
             $issue->users()->attach(
                 $users->random(fake()->numberBetween(1, 3))->pluck('id')
             );
+
+            IssueActivity::log($issue, $admin, 'created');
         }
 
         Comment::factory(30)

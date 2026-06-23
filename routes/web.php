@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\IssueActivityController;
 use App\Http\Controllers\IssueController;
 use App\Http\Controllers\IssueTagController;
 use App\Http\Controllers\IssueUserController;
@@ -25,4 +26,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('issues/{issue}/users/{user}/attach', [IssueUserController::class, 'attach'])->name('issues.users.attach');
     Route::delete('issues/{issue}/users/{user}/detach', [IssueUserController::class, 'detach'])->name('issues.users.detach');
+
+    Route::patch('issues/{issue}/status', [IssueController::class, 'updateStatus'])->name('issues.status.update');
+    Route::get('issues/{issue}/activities', [IssueActivityController::class, 'index'])->name('issues.activities.index');
 });

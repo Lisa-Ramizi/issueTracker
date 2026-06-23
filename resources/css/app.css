@@ -311,6 +311,32 @@ a {
     display: flex;
     flex-direction: column;
     gap: 0.65rem;
+    min-height: 80px;
+    border-radius: var(--radius-md);
+    transition: outline-color 0.15s ease;
+}
+
+.kanban-hint {
+    margin: 0 0 1rem;
+    font-size: 0.85rem;
+}
+
+.kanban__card {
+    cursor: grab;
+}
+
+.kanban__card--dragging {
+    opacity: 0.55;
+    cursor: grabbing;
+}
+
+.kanban__cards--drag-over {
+    outline: 2px dashed var(--strawberry-deep);
+    outline-offset: 3px;
+}
+
+.kanban__card .issue-card {
+    display: block;
 }
 
 /* ── Issue card ── */
@@ -754,6 +780,62 @@ a {
     width: 100%;
     max-width: 420px;
     padding: 2rem;
+}
+
+.activity-timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.activity-item {
+    display: flex;
+    gap: 0.85rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.activity-item:first-child {
+    padding-top: 0;
+}
+
+.activity-item__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--matcha-mid);
+    margin-top: 0.4rem;
+    flex-shrink: 0;
+}
+
+.activity-item__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.activity-item__message {
+    margin: 0 0 0.2rem;
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+.activity-item__meta {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.activity-item__user {
+    font-weight: 500;
+    color: var(--text);
 }
 
 /* ── Mobile ── */

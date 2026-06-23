@@ -7,11 +7,7 @@
         <p class="issue-card__note">{{ Str::limit($issue->description, 100) }}</p>
     @endif
     @php
-        $progress = match ($issue->status) {
-            'in_progress' => 55,
-            'closed' => 100,
-            default => 15,
-        };
+        $progress = \App\Models\Issue::progressForStatus($issue->status);
     @endphp
     <div class="issue-card__progress">
         <div class="issue-card__progress-bar">
