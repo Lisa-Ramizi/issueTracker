@@ -28,6 +28,13 @@
                         <a href="{{ route('issues.edit', $issue) }}" class="btn btn--ghost">Edit</a>
                     @endcan
                     <a href="{{ route('projects.show', $issue->project) }}" class="btn btn--ghost">Board</a>
+                    @can('delete', $issue)
+                        <form method="POST" action="{{ route('issues.destroy', $issue) }}" class="inline-form" style="margin: 0;" onsubmit="return confirm('Delete this issue?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn--danger">Delete</button>
+                        </form>
+                    @endcan
                 </div>
             </div>
         </div>

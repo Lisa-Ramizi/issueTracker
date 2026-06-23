@@ -79,10 +79,12 @@
     </div>
 
     <div class="section">
-        <form method="POST" action="{{ route('issues.destroy', $issue) }}" onsubmit="return confirm('Delete this issue?')">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn--danger">Delete Issue</button>
-        </form>
+        @can('delete', $issue)
+            <form method="POST" action="{{ route('issues.destroy', $issue) }}" onsubmit="return confirm('Delete this issue?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn--danger">Delete Issue</button>
+            </form>
+        @endcan
     </div>
 @endsection

@@ -284,4 +284,27 @@ class QaChecklistTest extends TestCase
             ->assertOk()
             ->assertJsonStructure(['data', 'next_page_url']);
     }
+
+    public function test_owner_can_delete_issue_from_show(): void
+    {
+        $this->actingAs($this->user)
+            ->delete(route('issues.destroy', $this->issue))
+            ->assertRedirect(route('projects.show', $this->project));
+
+        $this->assertDatabaseMissing('issues', ['id' => $this->issue->id]);
+    }
+
+    public function test_owner_can_delete_comment(): void
+    {
+        $comment = Comment::factory()->for($this->issue)->create([
+            'author_name' => $this->user->name,
+        ]);
+
+        $this->actingAs($this->user)
+            ->deleteJson(route('comments.destroy', $comment))
+            ->assertOk()
+            ->assertJson(['deleted' => true]);
+
+        $this->assertDatabaseMissing('comments', ['id' => $comment->id]);
+    }
 }

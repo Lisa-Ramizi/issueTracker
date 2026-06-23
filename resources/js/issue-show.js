@@ -58,9 +58,16 @@ function initIssueShow() {
     }
 
     function renderComment(comment, prepend = false) {
+        const deleteBtn = comment.can_delete
+            ? `<button type="button" class="comment__delete" data-comment-id="${comment.id}" title="Delete comment">Delete</button>`
+            : '';
+
         const html = `
-            <div class="comment">
-                <div class="comment__author">${escapeHtml(comment.author_name)}</div>
+            <div class="comment" data-comment-id="${comment.id}">
+                <div class="comment__header">
+                    <div class="comment__author">${escapeHtml(comment.author_name)}</div>
+                    ${deleteBtn}
+                </div>
                 <div class="comment__time">${escapeHtml(comment.created_at_human || '')}</div>
                 <p class="comment__body">${escapeHtml(comment.body)}</p>
             </div>
@@ -111,6 +118,36 @@ function initIssueShow() {
             loadMoreBtn.disabled = false;
         });
     }
+
+    commentsList?.addEventListener('click', async (event) => {
+        const button = event.target.closest('.comment__delete');
+        if (!button) {
+            return;
+        }
+
+        if (!confirm('Delete this comment?')) {
+            return;
+        }
+
+        const commentId = button.dataset.commentId;
+        const response = await fetch(`/comments/${commentId}`, {
+            method: 'DELETE',
+            headers: csrfHeaders(false),
+        });
+
+        if (!response.ok) {
+            return;
+        }
+
+        button.closest('.comment')?.remove();
+
+        const count = Math.max(0, parseInt(commentCount.textContent, 10) - 1);
+        commentCount.textContent = count;
+
+        if (commentsList.querySelectorAll('.comment').length === 0) {
+            commentsList.innerHTML = '<p class="meta" id="comments-empty" style="margin:0;">No comments yet. Be the first!</p>';
+        }
+    });
 
     function clearCommentErrors() {
         commentForm.querySelectorAll('.form-error').forEach((el) => el.remove());

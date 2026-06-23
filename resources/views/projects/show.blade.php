@@ -21,14 +21,19 @@
                     <span class="meta-pill">{{ $project->issues_count }} issue{{ $project->issues_count === 1 ? '' : 's' }}</span>
                 </div>
             </div>
-            <div class="actions">
-                @can('update', $project)
-                    <a href="{{ route('projects.issues.create', $project) }}" class="btn btn--primary">+ New Issue</a>
-                @endcan
-                @can('update', $project)
-                    <a href="{{ route('projects.edit', $project) }}" class="btn btn--ghost">Edit Project</a>
-                @endcan
-            </div>
+                <div class="actions">
+                    @can('update', $project)
+                        <a href="{{ route('projects.issues.create', $project) }}" class="btn btn--primary">+ New Issue</a>
+                        <a href="{{ route('projects.edit', $project) }}" class="btn btn--ghost">Edit Project</a>
+                    @endcan
+                    @can('delete', $project)
+                        <form method="POST" action="{{ route('projects.destroy', $project) }}" class="inline-form" style="margin: 0;" onsubmit="return confirm('Delete this project and all its issues?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn--danger">Delete</button>
+                        </form>
+                    @endcan
+                </div>
         </div>
 
         <div class="view-tabs">

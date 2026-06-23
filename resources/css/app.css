@@ -661,6 +661,23 @@ a {
     font-size: 0.875rem;
 }
 
+.comment__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.comment__delete {
+    border: none;
+    background: transparent;
+    color: var(--strawberry-deep);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+}
+
 .comment__body {
     margin: 0.25rem 0 0;
     font-size: 0.9rem;

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCommentRequest;
+use App\Models\Comment;
 use App\Models\Issue;
 use App\Models\IssueActivity;
 use Illuminate\Http\JsonResponse;
@@ -18,12 +19,7 @@ class CommentController extends Controller
             ->paginate(10);
 
         return response()->json([
-            'data' => $comments->map(fn ($comment) => [
-                'author_name' => $comment->author_name,
-                'body' => $comment->body,
-                'created_at' => $comment->created_at->toIso8601String(),
-                'created_at_human' => $comment->created_at->diffForHumans(),
-            ]),
+            'data' => $comments->map(fn (Comment $comment) => $this->commentPayload($request, $comment)),
             'next_page_url' => $comments->nextPageUrl(),
         ]);
     }
@@ -39,12 +35,7 @@ class CommentController extends Controller
 
         if ($request->expectsJson()) {
             return response()->json([
-                'comment' => [
-                    'author_name' => $comment->author_name,
-                    'body' => $comment->body,
-                    'created_at' => $comment->created_at->toIso8601String(),
-                    'created_at_human' => $comment->created_at->diffForHumans(),
-                ],
+                'comment' => $this->commentPayload($request, $comment),
                 'activity' => $activity->load('user')->toTimelineArray(),
             ], 201);
         }
@@ -52,5 +43,26 @@ class CommentController extends Controller
         return redirect()
             ->route('issues.show', $issue)
             ->with('success', 'Comment added.');
+    }
+
+    public function destroy(Request $request, Comment $comment): JsonResponse
+    {
+        $this->authorize('delete', $comment);
+
+        $comment->delete();
+
+        return response()->json(['deleted' => true]);
+    }
+
+    private function commentPayload(Request $request, Comment $comment): array
+    {
+        return [
+            'id' => $comment->id,
+            'author_name' => $comment->author_name,
+            'body' => $comment->body,
+            'created_at' => $comment->created_at->toIso8601String(),
+            'created_at_human' => $comment->created_at->diffForHumans(),
+            'can_delete' => $request->user()->can('delete', $comment),
+        ];
     }
 }
