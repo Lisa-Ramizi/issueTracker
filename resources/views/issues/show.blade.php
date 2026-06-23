@@ -106,10 +106,7 @@
                 <div id="comment-success" class="flash flash--success" style="display: none; margin-bottom: 1rem;">Comment added.</div>
 
                 <form id="comment-form">
-                    <div class="form-group">
-                        <label for="author_name">Your Name</label>
-                        <input type="text" id="author_name" name="author_name" class="form-control" required>
-                    </div>
+                    <p class="meta" style="margin: 0 0 1rem;">Commenting as <strong>{{ auth()->user()->name }}</strong></p>
 
                     <div class="form-group">
                         <label for="body">Comment</label>

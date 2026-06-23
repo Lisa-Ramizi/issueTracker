@@ -101,11 +101,15 @@ class QaChecklistTest extends TestCase
     {
         $this->actingAs($this->user)
             ->postJson(route('issues.comments.store', $this->issue), [
-                'author_name' => 'QA Tester',
                 'body' => 'Looks good.',
             ])
             ->assertCreated()
-            ->assertJsonStructure(['comment' => ['author_name', 'body', 'created_at']]);
+            ->assertJson([
+                'comment' => [
+                    'author_name' => $this->user->name,
+                    'body' => 'Looks good.',
+                ],
+            ]);
     }
 
     public function test_comment_store_returns_422_for_invalid_data(): void
@@ -113,7 +117,7 @@ class QaChecklistTest extends TestCase
         $this->actingAs($this->user)
             ->postJson(route('issues.comments.store', $this->issue), [])
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['author_name', 'body']);
+            ->assertJsonValidationErrors(['body']);
     }
 
     public function test_tag_attach_and_detach_return_json(): void

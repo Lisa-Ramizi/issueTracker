@@ -113,7 +113,6 @@ function initIssueShow() {
 
         const formData = new FormData(commentForm);
         const payload = {
-            author_name: formData.get('author_name'),
             body: formData.get('body'),
         };
 

@@ -29,7 +29,10 @@ class CommentController extends Controller
 
     public function store(StoreCommentRequest $request, Issue $issue): JsonResponse|RedirectResponse
     {
-        $comment = $issue->comments()->create($request->validated());
+        $comment = $issue->comments()->create([
+            ...$request->validated(),
+            'author_name' => $request->user()->name,
+        ]);
 
         if ($request->expectsJson()) {
             return response()->json([
