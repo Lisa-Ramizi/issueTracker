@@ -127,12 +127,12 @@
             <div class="card" style="margin-top: 1rem;">
                 <div id="comment-success" class="flash flash--success" style="display: none; margin-bottom: 1rem;">Comment added.</div>
 
-                <form id="comment-form">
+                <form id="comment-form" novalidate>
                     <p class="meta" style="margin: 0 0 1rem;">Commenting as <strong>{{ auth()->user()->name }}</strong></p>
 
                     <div class="form-group">
                         <label for="body">Comment</label>
-                        <textarea id="body" name="body" class="form-control" rows="3" required></textarea>
+                        <textarea id="body" name="body" class="form-control" rows="3"></textarea>
                     </div>
 
                     <button type="submit" class="btn btn--primary">Add Comment</button>

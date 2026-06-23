@@ -14,12 +14,12 @@
     </div>
 
     <div class="card form-card">
-        <form method="POST" action="{{ route('projects.issues.store', $project) }}">
+        <form method="POST" action="{{ route('projects.issues.store', $project) }}" novalidate>
             @csrf
 
             <div class="form-group">
                 <label for="title">Title</label>
-                <input type="text" id="title" name="title" class="form-control" value="{{ old('title') }}" required>
+                <input type="text" id="title" name="title" class="form-control" value="{{ old('title') }}">
                 @error('title')<div class="form-error">{{ $message }}</div>@enderror
             </div>
 
@@ -31,7 +31,7 @@
 
             <div class="form-group">
                 <label for="status">Status</label>
-                <select id="status" name="status" class="form-control" required>
+                <select id="status" name="status" class="form-control">
                     @foreach (['open', 'in_progress', 'closed'] as $status)
                         <option value="{{ $status }}" @selected(old('status', 'open') === $status)>{{ str_replace('_', ' ', $status) }}</option>
                     @endforeach
@@ -41,7 +41,7 @@
 
             <div class="form-group">
                 <label for="priority">Priority</label>
-                <select id="priority" name="priority" class="form-control" required>
+                <select id="priority" name="priority" class="form-control">
                     @foreach (['low', 'medium', 'high'] as $priority)
                         <option value="{{ $priority }}" @selected(old('priority', 'medium') === $priority)>{{ $priority }}</option>
                     @endforeach

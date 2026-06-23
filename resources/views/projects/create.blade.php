@@ -9,12 +9,12 @@
     </div>
 
     <div class="card form-card">
-        <form method="POST" action="{{ route('projects.store') }}">
+        <form method="POST" action="{{ route('projects.store') }}" novalidate>
             @csrf
 
             <div class="form-group">
                 <label for="name">Name</label>
-                <input type="text" id="name" name="name" class="form-control" value="{{ old('name') }}" required>
+                <input type="text" id="name" name="name" class="form-control" value="{{ old('name') }}">
                 @error('name')<div class="form-error">{{ $message }}</div>@enderror
             </div>
 

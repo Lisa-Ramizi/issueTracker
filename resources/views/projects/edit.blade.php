@@ -9,13 +9,13 @@
     </div>
 
     <div class="card form-card">
-        <form method="POST" action="{{ route('projects.update', $project) }}">
+        <form method="POST" action="{{ route('projects.update', $project) }}" novalidate>
             @csrf
             @method('PUT')
 
             <div class="form-group">
                 <label for="name">Name</label>
-                <input type="text" id="name" name="name" class="form-control" value="{{ old('name', $project->name) }}" required>
+                <input type="text" id="name" name="name" class="form-control" value="{{ old('name', $project->name) }}">
                 @error('name')<div class="form-error">{{ $message }}</div>@enderror
             </div>
 

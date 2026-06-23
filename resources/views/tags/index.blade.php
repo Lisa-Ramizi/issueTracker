@@ -12,12 +12,12 @@
 
     <div class="card form-card" style="margin-bottom: 1.5rem; max-width: 480px;">
         <h2 class="section-title" style="font-size: 1rem; margin-bottom: 1.25rem;">Create Tag</h2>
-        <form method="POST" action="{{ route('tags.store') }}">
+        <form method="POST" action="{{ route('tags.store') }}" novalidate>
             @csrf
 
             <div class="form-group">
                 <label for="name">Name</label>
-                <input type="text" id="name" name="name" class="form-control" value="{{ old('name') }}" required>
+                <input type="text" id="name" name="name" class="form-control" value="{{ old('name') }}">
                 @error('name')<div class="form-error">{{ $message }}</div>@enderror
             </div>
 
