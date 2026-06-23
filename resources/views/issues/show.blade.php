@@ -24,7 +24,9 @@
                     </div>
                 </div>
                 <div class="actions">
-                    <a href="{{ route('issues.edit', $issue) }}" class="btn btn--ghost">Edit</a>
+                    @can('update', $issue)
+                        <a href="{{ route('issues.edit', $issue) }}" class="btn btn--ghost">Edit</a>
+                    @endcan
                     <a href="{{ route('projects.show', $issue->project) }}" class="btn btn--ghost">Board</a>
                 </div>
             </div>

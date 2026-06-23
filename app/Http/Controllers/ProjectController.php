@@ -13,6 +13,7 @@ class ProjectController extends Controller
     public function index(): View
     {
         $projects = Project::query()
+            ->with('user')
             ->withCount('issues')
             ->latest()
             ->paginate(10);

@@ -3,7 +3,7 @@
 @section('title', $project->name)
 
 @section('content')
-    <div id="project-board">
+    <div id="project-board" data-can-update="{{ auth()->user()->can('update', $project) ? '1' : '0' }}">
         <div class="page-header">
             <div>
                 <h1 class="page-title">{{ $project->name }}</h1>
@@ -22,7 +22,9 @@
                 </div>
             </div>
             <div class="actions">
-                <a href="{{ route('projects.issues.create', $project) }}" class="btn btn--primary">+ New Issue</a>
+                @can('update', $project)
+                    <a href="{{ route('projects.issues.create', $project) }}" class="btn btn--primary">+ New Issue</a>
+                @endcan
                 @can('update', $project)
                     <a href="{{ route('projects.edit', $project) }}" class="btn btn--ghost">Edit Project</a>
                 @endcan
@@ -50,7 +52,11 @@
                 <a href="{{ route('projects.issues.create', $project) }}" class="btn btn--primary" style="margin-top: 1rem;">Add Issue</a>
             </div>
         @else
-            <p class="meta kanban-hint">Drag cards between columns to update status.</p>
+            @can('update', $project)
+                <p class="meta kanban-hint">Drag cards between columns to update status.</p>
+            @else
+                <p class="meta kanban-hint">View only — you can browse this board but cannot move cards.</p>
+            @endcan
             <div class="kanban">
                 @foreach ($columns as $status => $col)
                     @php $colIssues = $issuesByStatus->get($status, collect()); @endphp
@@ -65,7 +71,7 @@
                         <div class="kanban__cards" data-status="{{ $status }}">
                             @forelse ($colIssues as $issue)
                                 <div class="kanban__card"
-                                     draggable="true"
+                                     @if (auth()->user()->can('update', $project)) draggable="true" @endif
                                      data-issue-id="{{ $issue->id }}"
                                      data-status="{{ $issue->status }}">
                                     @include('components.issue-card', ['issue' => $issue])

@@ -8,7 +8,7 @@ const STATUS_PROGRESS = {
 
 function initProjectBoard() {
     const board = document.getElementById('project-board');
-    if (!board) {
+    if (!board || board.dataset.canUpdate !== '1') {
         return;
     }
 

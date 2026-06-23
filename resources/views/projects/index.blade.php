@@ -30,6 +30,11 @@
                         @endif
                         <div class="meta-pills" style="margin-top: 0.85rem;">
                             <span class="meta-pill">{{ $project->issues_count }} issue{{ $project->issues_count === 1 ? '' : 's' }}</span>
+                            @if ($project->user_id === auth()->id())
+                                <span class="meta-pill meta-pill--status">Yours</span>
+                            @else
+                                <span class="meta-pill">{{ $project->user->name }}</span>
+                            @endif
                             @if ($project->deadline)
                                 <span class="meta-pill">Due {{ $project->deadline->format('M j') }}</span>
                             @endif

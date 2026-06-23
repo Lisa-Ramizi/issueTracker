@@ -48,6 +48,8 @@ class IssueController extends Controller
 
     public function create(Project $project): View
     {
+        $this->authorize('update', $project);
+
         $tags = Tag::orderBy('name')->get();
 
         return view('issues.create', compact('project', 'tags'));
@@ -55,6 +57,7 @@ class IssueController extends Controller
 
     public function store(StoreIssueRequest $request, Project $project): RedirectResponse
     {
+        $this->authorize('update', $project);
         $data = $request->validated();
         $tagIds = $data['tag_ids'] ?? [];
         unset($data['tag_ids']);
@@ -89,6 +92,8 @@ class IssueController extends Controller
 
     public function edit(Issue $issue): View
     {
+        $this->authorize('update', $issue);
+
         $issue->load('tags');
         $tags = Tag::orderBy('name')->get();
 
@@ -97,6 +102,8 @@ class IssueController extends Controller
 
     public function update(UpdateIssueRequest $request, Issue $issue): RedirectResponse
     {
+        $this->authorize('update', $issue);
+
         $data = $request->validated();
         $tagIds = $data['tag_ids'] ?? [];
         unset($data['tag_ids']);
@@ -140,6 +147,8 @@ class IssueController extends Controller
 
     public function updateStatus(UpdateIssueStatusRequest $request, Issue $issue): JsonResponse
     {
+        $this->authorize('update', $issue);
+
         $newStatus = $request->validated('status');
 
         if ($issue->status === $newStatus) {
@@ -163,6 +172,8 @@ class IssueController extends Controller
 
     public function destroy(Issue $issue): RedirectResponse
     {
+        $this->authorize('delete', $issue);
+
         $project = $issue->project;
         $issue->delete();
 

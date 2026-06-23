@@ -246,6 +246,24 @@ class QaChecklistTest extends TestCase
         ]);
     }
 
+    public function test_user_cannot_edit_another_users_issue(): void
+    {
+        $other = User::factory()->create();
+
+        $this->actingAs($other)
+            ->get(route('issues.edit', $this->issue))
+            ->assertForbidden();
+    }
+
+    public function test_user_cannot_edit_another_users_project(): void
+    {
+        $other = User::factory()->create();
+
+        $this->actingAs($other)
+            ->get(route('projects.edit', $this->project))
+            ->assertForbidden();
+    }
+
     public function test_issue_show_displays_activity_timeline(): void
     {
         \App\Models\IssueActivity::log($this->issue, $this->user, 'comment_added');
