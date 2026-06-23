@@ -41,6 +41,14 @@
             <a href="{{ route('projects.issues.index', $project) }}" class="view-tab">List</a>
         </div>
 
+        @include('issues._filters', ['project' => $project, 'tags' => $tags])
+
+        <div id="issue-search-panel" class="issue-search-panel" hidden>
+            <p class="meta" id="issues-result-count" style="margin: 0 0 1rem;">0 results</p>
+            <div id="issue-list" data-total="0"></div>
+        </div>
+
+        <div id="project-board-kanban">
         @php
             $columns = [
                 'open' => ['label' => 'To Do', 'class' => 'open'],
@@ -89,9 +97,10 @@
                 @endforeach
             </div>
         @endif
+        </div>
     </div>
 @endsection
 
 @push('scripts')
-    @vite(['resources/js/project-show.js'])
+    @vite(['resources/js/project-show.js', 'resources/js/issues-filter.js'])
 @endpush

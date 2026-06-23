@@ -82,7 +82,7 @@ Jordan and Sam exist as team members you can assign to issues.
 1. **Projects** — two SaaS-themed boards with real issue data (no lorem ipsum).
 2. **Kanban** — drag cards between To Do / In Progress / Completed (owner only).
 3. **Issue detail** — tags, members, comments, and activity timeline.
-4. **Search** — on a project’s issue list, filter and debounced text search.
+4. **Search** — on any project board or issue list, use the filter bar: debounced text search (title/description), plus status, priority, and tag filters (all AJAX, no full page reload).
 5. **Policies** — only project owners can edit/delete projects and their issues.
 
 ---

@@ -630,6 +630,15 @@ a {
     flex: 1;
 }
 
+.filter-bar .form-group--search {
+    min-width: 200px;
+    flex: 2;
+}
+
+.issue-search-panel {
+    margin-bottom: 1.5rem;
+}
+
 /* ── Empty state ── */
 .empty-state {
     text-align: center;

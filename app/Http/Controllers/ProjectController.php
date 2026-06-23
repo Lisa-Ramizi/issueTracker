@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
+use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -41,6 +42,7 @@ class ProjectController extends Controller
     public function show(Project $project): View
     {
         $project->loadCount('issues');
+        $tags = Tag::orderBy('name')->get();
 
         $issuesByStatus = $project->issues()
             ->with(['tags', 'users'])
@@ -48,7 +50,7 @@ class ProjectController extends Controller
             ->get()
             ->groupBy('status');
 
-        return view('projects.show', compact('project', 'issuesByStatus'));
+        return view('projects.show', compact('project', 'issuesByStatus', 'tags'));
     }
 
     public function edit(Project $project): View

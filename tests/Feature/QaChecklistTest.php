@@ -87,6 +87,69 @@ class QaChecklistTest extends TestCase
             ->assertViewIs('issues._list');
     }
 
+    public function test_issue_search_filters_by_title_and_description(): void
+    {
+        Issue::factory()->for($this->project)->create([
+            'title' => 'Billing webhook timeout',
+            'description' => 'Unrelated details',
+        ]);
+        Issue::factory()->for($this->project)->create([
+            'title' => 'Dashboard polish',
+            'description' => 'Fix billing chart labels',
+        ]);
+
+        $this->actingAs($this->user)
+            ->get(route('projects.issues.index', $this->project).'?search=webhook')
+            ->assertOk()
+            ->assertSee('Billing webhook timeout')
+            ->assertDontSee('Dashboard polish');
+
+        $this->actingAs($this->user)
+            ->get(route('projects.issues.index', $this->project), [
+                'search' => 'billing',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ])
+            ->assertOk()
+            ->assertViewIs('issues._list')
+            ->assertSee('Billing webhook timeout')
+            ->assertSee('Fix billing chart labels');
+    }
+
+    public function test_issue_filters_by_status_priority_and_tag(): void
+    {
+        $tag = Tag::factory()->create(['name' => 'payments']);
+        $match = Issue::factory()->for($this->project)->create([
+            'title' => 'Matched issue',
+            'status' => 'open',
+            'priority' => 'high',
+        ]);
+        $match->tags()->attach($tag);
+
+        Issue::factory()->for($this->project)->create([
+            'title' => 'Closed low priority',
+            'status' => 'closed',
+            'priority' => 'low',
+        ]);
+
+        $this->actingAs($this->user)
+            ->get(route('projects.issues.index', $this->project).'?status=open&priority=high&tag_id='.$tag->id)
+            ->assertOk()
+            ->assertSee('Matched issue')
+            ->assertDontSee('Closed low priority');
+    }
+
+    public function test_project_board_includes_search_filters(): void
+    {
+        Tag::factory()->create();
+
+        $this->actingAs($this->user)
+            ->get(route('projects.show', $this->project))
+            ->assertOk()
+            ->assertSee('issues-filter-form')
+            ->assertSee('Title or description')
+            ->assertSee('issue-search-panel');
+    }
+
     public function test_comments_index_returns_json(): void
     {
         Comment::factory()->for($this->issue)->create();

@@ -12,6 +12,14 @@ export function csrfHeaders(includeJson = true) {
     return headers;
 }
 
+export function partialHtmlHeaders() {
+    return {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        'Accept': 'text/html',
+        'X-Requested-With': 'XMLHttpRequest',
+    };
+}
+
 export function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
